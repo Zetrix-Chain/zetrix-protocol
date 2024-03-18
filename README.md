@@ -10,3 +10,4 @@ ZEP is the ecosystem proposal that can cover; Core, Network, Interface, ZTP and 
 The adoption of ZEP is almost equivalent to EIP in Ethereum or SEP in Stellar. ZEP was introduced as a tracking mechanism for Zetrix improvement.
 Normally, ZEP is created by the internal team since Zetrix is currently not a community-driven network.
 
+See CONTRIBUTING to learn how to contribute.
