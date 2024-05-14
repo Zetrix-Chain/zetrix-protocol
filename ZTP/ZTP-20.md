@@ -1,16 +1,16 @@
 # Contents
 
-1. [Introduction](#introduction)	3
-2. [What is the Token Standard](#what-is-the-token-standard)	3
-3. [What is ZTP-20](#what-is-ztp-20)	3
-4. [Methods](#methods)	4
-5. [Example](#example)	5
-6. [Use Case](#use-case)	9
-    - [Utility Tokens](#utility-tokens)	9
-    - [Stablecoins](#stablecoins)	9
-    - [Decentralized Exchanges (DEXs)](#decentralized-exchanges-dexs)	9
-    - [Lending and Borrowing Platforms](#lending-and-borrowing-platforms)	9
-    - [Tokenized Assets and Securities](#tokenized-assets-and-securities)	9
+1. [Introduction](#introduction)	
+2. [What is the Token Standard](#what-is-the-token-standard)	
+3. [What is ZTP-20](#what-is-ztp-20)	
+4. [Methods](#methods)	
+5. [Example](#example)	
+6. [Use Case](#use-case)	
+    - [Utility Tokens](#utility-tokens)	
+    - [Stablecoins](#stablecoins)	
+    - [Decentralized Exchanges (DEXs)](#decentralized-exchanges-dexs)	
+    - [Lending and Borrowing Platforms](#lending-and-borrowing-platforms)	
+    - [Tokenized Assets and Securities](#tokenized-assets-and-securities)	
 
 # Introduction
 
