@@ -40,7 +40,7 @@ A Standards Track ZEP makes major changes affecting most Zetrix implementations.
 
 ## ZEP WorkFlow
 ### Shepherding an ZEP
-Core ZEPs
+
 For Core ZEPs, in order for them to be considered Final and require client implementations, you must either provide an implementation for clients or persuade clients to implement your ZEP. You can request to do so by posting a comment containing a link to your ZEP on an CoreDevs agenda GitHub Issue.
 
 The CoreDevs call serves as a platform for client implementers to achieve three objectives: first, to discuss the technical merits of ZEPs; second, to ascertain which ZEPs other clients will be implementing; and third, to coordinate ZEP implementation for network upgrades.
