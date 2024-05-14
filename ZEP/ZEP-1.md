@@ -46,25 +46,23 @@ For Core ZEPs, in order for them to be considered Final and require client imple
 The CoreDevs call serves as a platform for client implementers to achieve three objectives: first, to discuss the technical merits of ZEPs; second, to ascertain which ZEPs other clients will be implementing; and third, to coordinate ZEP implementation for network upgrades.
 
 ### ZEP Process
-The following is the standardization process for all ZEPs in all tracks:
-Idea - An idea that is pre-draft. This is not tracked within the ZEP Repository.
-Draft - The initial formally tracked stage of a ZEP in development. A ZEP is merged by a ZEP Editor into the ZEP repository when properly formatted.
-Review - A ZEP Author marks a ZEP as ready for and requesting Peer Review.
-Last Call - This marks the final review window for a ZEP before moving to Final. A ZEP editor will assign Last Call status and set a review end date (last-call-deadline), typically 14 days later.
+# ZEP Lifecycle
 
-If this period results in necessary normative changes, it will revert the ZEP to Review.
+- **Idea:** An idea that is pre-draft. This is not tracked within the ZEP Repository.
 
-Final - This ZEP represents the ultimate standard. A Final ZEP exists in a state of finality and should only be updated to correct errata and add non-normative clarifications.
+- **Draft:** The initial formally tracked stage of a ZEP in development. A ZEP is merged by a ZEP Editor into the ZEP repository when properly formatted.
 
-A PR moving a ZEP from Last Call to Final SHOULD contain no changes other than the status update. Any content or editorial proposed change SHOULD be separate from this status-updating PR and committed prior to it.
+- **Review:** A ZEP Author marks a ZEP as ready for and requesting Peer Review.
 
-Stagnant/Idle - Any ZEP in Draft or Review or Last Call if inactive for a period of 6 months or greater is moved to Stagnant. A ZEP may be resurrected from this state by Authors or ZEP Editors by moving it back to Draft or its earlier status. If not resurrected, a proposal may stay forever in this status.
+- **Last Call:** This marks the final review window for a ZEP before moving to Final. A ZEP editor will assign Last Call status and set a review end date (`last-call-deadline`), typically 14 days later. If this period results in necessary normative changes, it will revert the ZEP to Review.
 
-ZEP Authors are notified of any algorithmic change to the status of their ZEP.
+- **Final:** This ZEP represents the ultimate standard. A Final ZEP exists in a state of finality and should only be updated to correct errata and add non-normative clarifications. A PR moving a ZEP from Last Call to Final SHOULD contain no changes other than the status update. Any content or editorial proposed change SHOULD be separate from this status-updating PR and committed prior to it.
 
-Withdrawn - The ZEP Author(s) have withdrawn the proposed ZEP. This state has finality and can no longer be resurrected using this ZEP number. If the idea is pursued at a later date, it is considered a new proposal.
+- **Stagnant/Idle:** Any ZEP in Draft or Review or Last Call if inactive for a period of 6 months or greater is moved to Stagnant. A ZEP may be resurrected from this state by Authors or ZEP Editors by moving it back to Draft or its earlier status. If not resurrected, a proposal may stay forever in this status. ZEP Authors are notified of any algorithmic change to the status of their ZEP.
 
-Living - A special status for ZEPs that are designed to be continually updated and not reach a state of finality. This includes most notably ZEP-1.
+- **Withdrawn:** The ZEP Author(s) have withdrawn the proposed ZEP. This state has finality and can no longer be resurrected using this ZEP number. If the idea is pursued at a later date, it is considered a new proposal.
+
+- **Living:** A special status for ZEPs that are designed to be continually updated and not reach a state of finality. This includes most notably ZEP-1.
 
 ## What belongs in a successful ZEP?
 # Abstract
