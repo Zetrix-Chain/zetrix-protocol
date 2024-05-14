@@ -76,7 +76,7 @@ function balanceOf(address) {
   return value === false ? "0" : value;
 }
 ````
-# Function Implementation: approve(spender, value)
+## Function Implementation: approve(spender, value)
 
 Allows Utils.addressCheck(spender) to withdraw from your account multiple times, up to the Utils.stoI64Check(value) amount. If this function is called again it overwrites the current allowance with Utils.stoI64Check(value).
 
@@ -96,7 +96,7 @@ function approve(spender, value) {
   return true;
 }
 ```
-# Function Implementation: allowance(owner, spender)
+## Function Implementation: allowance(owner, spender)
 
 Allowance is a way for a token holder to give another address permission to transfer a certain amount of their token.
 
@@ -114,7 +114,7 @@ function allowance(owner, spender) {
   return value;
 }
 ```
-# Function Implementation: transfer(to, value)
+## Function Implementation: transfer(to, value)
 
 Transfers senderValue amount of tokens to Utils.addressCheck(to), and MUST fire the Transfer event. The function SHOULD throw if the message caller’s account balance does not have enough tokens to spend.
 
@@ -143,7 +143,7 @@ function transfer(to, value) {
   return true;
 }
 ```
-# Function Implementation: transferFrom(from, to, value)
+## Function Implementation: transferFrom(from, to, value)
 
 Transfers Utils.stoI64Check(value) amount of tokens from Utils.addressCheck(from) to address Utils.addressCheck(to), and MUST fire the Transfer event.
 
@@ -180,7 +180,7 @@ function transferFrom(from, to, value) {
   return true;
 }
 ```
-# Function Implementation: query(input_str)
+## Function Implementation: query(input_str)
 
 The ERC-20 standard defines a set of common functions for managing and interacting with tokens, such as balanceOf, transfer, approve, allowance, and transferFrom.
 
@@ -204,7 +204,7 @@ function query(input_str) {
   return JSON.stringify(result);
 }
 ```
-# Function Implementation: deposit(value)
+## Function Implementation: deposit(value)
 
 The deposit function is a custom function that can be implemented in a smart contract to allow users to deposit funds or tokens into the contract.
 
@@ -223,7 +223,7 @@ function deposit(value) {
   return true;
 }
 ```
-# Function Implementation: withdrawal(value)
+## Function Implementation: withdrawal(value)
 
 The withdrawal function is a custom function that can be implemented in a smart contract to allow users to withdraw funds or tokens from the contract.
 
