@@ -222,7 +222,8 @@ function deposit(value) {
   Chain.tlog('Transfer', "0x", Chain.msg.sender, value);
   return true;
 }
-```# Function Implementation: withdrawal(value)
+```
+# Function Implementation: withdrawal(value)
 
 The withdrawal function is a custom function that can be implemented in a smart contract to allow users to withdraw funds or tokens from the contract.
 
