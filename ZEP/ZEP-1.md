@@ -46,7 +46,6 @@ For Core ZEPs, in order for them to be considered Final and require client imple
 The CoreDevs call serves as a platform for client implementers to achieve three objectives: first, to discuss the technical merits of ZEPs; second, to ascertain which ZEPs other clients will be implementing; and third, to coordinate ZEP implementation for network upgrades.
 
 ### ZEP Process
-# ZEP Lifecycle
 
 - **Idea:** An idea that is pre-draft. This is not tracked within the ZEP Repository.
 
