@@ -15,7 +15,7 @@ const IOptimismMintableZTP20 = {
   }
 };
 
-const IZIP165 = {
+const IZEP165 = {
   supportsInterface: function() {
     return this;
   }
@@ -50,7 +50,7 @@ const OptimismMintableZTP20Class = function() {
   };
 
   this.supportsInterface = function(interfaceId) {
-    let iface1 = Utils.sha256(JSON.stringify(IZIP165), 1);
+    let iface1 = Utils.sha256(JSON.stringify(IZEP165), 1);
     let iface2 = Utils.sha256(JSON.stringify(IOptimismMintableZTP20), 1);
     return interfaceId === iface1 || interfaceId === iface2;
   };
@@ -62,7 +62,7 @@ function init(input_str) {
   let input = JSON.parse(input_str);
 
   Utils.assert(implementsInterface(OptimismMintableZTP20, IOptimismMintableZTP20), 'OptimismMintableZTP20 does not implement IOptimismMintableZTP20');
-  Utils.assert(implementsInterface(OptimismMintableZTP20, IZIP165), 'OptimismMintableZTP20 does not implement IZIP165');
+  Utils.assert(implementsInterface(OptimismMintableZTP20, IZEP165), 'OptimismMintableZTP20 does not implement IZEP165');
 
   return true;
 }
