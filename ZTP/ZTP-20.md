@@ -78,15 +78,15 @@ function balanceOf(address) {
 ````
 ## Function Implementation: approve(spender, value)
 
-Allows Utils.addressCheck(spender) to withdraw from your account multiple times, up to the Utils.stoI64Check(value) amount. If this function is called again it overwrites the current allowance with Utils.stoI64Check(value).
+Allows Utils.addressCheck(spender) to withdraw from your account multiple times, up to the Utils.stoI256Check(value) amount. If this function is called again it overwrites the current allowance with Utils.stoI256Check(value).
 
 ## Example
 
 ```javascript
 function approve(spender, value) {
   Utils.assert(Utils.addressCheck(spender) === true, 'Arg-spender is not a valid address.');
-  Utils.assert(Utils.stoI64Check(value) === true, 'Arg-value must be alphanumeric.');
-  Utils.assert(Utils.int64Compare(value, '0') >= 0, 'Arg-value of spender ' + spender + ' must greater or equal to 0.');
+  Utils.assert(Utils.stoI256Check(value) === true, 'Arg-value must be alphanumeric.');
+  Utils.assert(Utils.int256Compare(value, '0') >= 0, 'Arg-value of spender ' + spender + ' must greater or equal to 0.');
 
   let key = makeAllowanceKey(Chain.msg.sender, spender);
   Chain.store(key, value);
@@ -123,19 +123,19 @@ Transfers senderValue amount of tokens to Utils.addressCheck(to), and MUST fire 
 ```javascript
 function transfer(to, value) {
   Utils.assert(Utils.addressCheck(to) === true, 'Arg-to is not a valid address.');
-  Utils.assert(Utils.stoI64Check(value) === true, 'Arg-value must be alphanumeric.');
-  Utils.assert(Utils.int64Compare(value, '0') > 0, 'Arg-value must be greater than 0.');
+  Utils.assert(Utils.stoI256Check(value) === true, 'Arg-value must be alphanumeric.');
+  Utils.assert(Utils.int256Compare(value, '0') > 0, 'Arg-value must be greater than 0.');
   Utils.assert(Chain.msg.sender !== to, 'From cannot equal to address.');
 
   let senderValue = Chain.load(Chain.msg.sender);
   Utils.assert(senderValue !== false, 'Failed to get the balance of ' + Chain.msg.sender + ' from metadata.');
-  Utils.assert(Utils.int64Compare(senderValue, value) >= 0, 'Balance:' + senderValue + ' of sender:' + Chain.msg.sender + ' < transfer value:' + value + '.');
+  Utils.assert(Utils.int256Compare(senderValue, value) >= 0, 'Balance:' + senderValue + ' of sender:' + Chain.msg.sender + ' < transfer value:' + value + '.');
 
   let toValue = Chain.load(to);
-  toValue = (toValue === false) ? value : Utils.int64Add(toValue, value);
+  toValue = (toValue === false) ? value : Utils.int256Add(toValue, value);
   Chain.store(to, toValue);
 
-  senderValue = Utils.int64Sub(senderValue, value);
+  senderValue = Utils.int256Sub(senderValue, value);
   Chain.store(Chain.msg.sender, senderValue);
 
   Chain.tlog('Transfer', Chain.msg.sender, to, value);
@@ -145,7 +145,7 @@ function transfer(to, value) {
 ```
 ## Function Implementation: transferFrom(from, to, value)
 
-Transfers Utils.stoI64Check(value) amount of tokens from Utils.addressCheck(from) to address Utils.addressCheck(to), and MUST fire the Transfer event.
+Transfers Utils.stoI256Check(value) amount of tokens from Utils.addressCheck(from) to address Utils.addressCheck(to), and MUST fire the Transfer event.
 
 ## Example
 
@@ -153,26 +153,26 @@ Transfers Utils.stoI64Check(value) amount of tokens from Utils.addressCheck(from
 function transferFrom(from, to, value) {
   Utils.assert(Utils.addressCheck(from) === true, 'Arg-from is not a valid address.');
   Utils.assert(Utils.addressCheck(to) === true, 'Arg-to is not a valid address.');
-  Utils.assert(Utils.stoI64Check(value) === true, 'Arg-value must be alphanumeric.');
-  Utils.assert(Utils.int64Compare(value, '0') > 0, 'Arg-value must be greater than 0.');
+  Utils.assert(Utils.stoI256Check(value) === true, 'Arg-value must be alphanumeric.');
+  Utils.assert(Utils.int256Compare(value, '0') > 0, 'Arg-value must be greater than 0.');
   Utils.assert(from !== to, 'From cannot equal to address.');
 
   let fromValue = Chain.load(from);
   Utils.assert(fromValue !== false, 'Failed to get the value, probably because ' + from + ' has no value.');
-  Utils.assert(Utils.int64Compare(fromValue, value) >= 0, from + ' Balance:' + fromValue + ' < transfer value:' + value + '.');
+  Utils.assert(Utils.int256Compare(fromValue, value) >= 0, from + ' Balance:' + fromValue + ' < transfer value:' + value + '.');
 
   let allowValue = allowance(from, Chain.msg.sender);
-  Utils.assert(Utils.int64Compare(allowValue, value) >= 0, 'Allowance value:' + allowValue + ' < transfer value:' + value + ' from ' + from + ' to ' + to + '.');
+  Utils.assert(Utils.int256Compare(allowValue, value) >= 0, 'Allowance value:' + allowValue + ' < transfer value:' + value + ' from ' + from + ' to ' + to + '.');
 
   let toValue = Chain.load(to);
-  toValue = (toValue === false) ? value : Utils.int64Add(toValue, value);
+  toValue = (toValue === false) ? value : Utils.int256Add(toValue, value);
   Chain.store(to, toValue);
 
-  fromValue = Utils.int64Sub(fromValue, value);
+  fromValue = Utils.int256Sub(fromValue, value);
   Chain.store(from, fromValue);
 
   let allowKey = makeAllowanceKey(from, Chain.msg.sender);
-  allowValue = Utils.int64Sub(allowValue, value);
+  allowValue = Utils.int256Sub(allowValue, value);
   Chain.store(allowKey, allowValue);
 
   Chain.tlog('Transfer', from, to, value);
@@ -212,11 +212,11 @@ The deposit function is a custom function that can be implemented in a smart con
 
 ```javascript
 function deposit(value) {
-  Utils.assert(Utils.stoI64Check(value) === true, 'Arg-value must be alphanumeric.');
-  Utils.assert(Utils.int64Compare(value, Chain.msg.coinAmount) === 0, 'Arg-value must equal pay coin amount.');
-  Utils.assert(Utils.int64Compare(value, "0") > 0, 'Arg-value must > 0.');
+  Utils.assert(Utils.stoI256Check(value) === true, 'Arg-value must be alphanumeric.');
+  Utils.assert(Utils.int256Compare(value, Chain.msg.coinAmount) === 0, 'Arg-value must equal pay coin amount.');
+  Utils.assert(Utils.int256Compare(value, "0") > 0, 'Arg-value must > 0.');
   let senderValue = Chain.load(Chain.msg.sender);
-  senderValue = (senderValue === false) ? value : Utils.int64Add(senderValue, value);
+  senderValue = (senderValue === false) ? value : Utils.int256Add(senderValue, value);
   Chain.store(Chain.msg.sender, senderValue);
   Chain.tlog('Deposit', Chain.msg.sender, value);
   Chain.tlog('Transfer', "0x", Chain.msg.sender, value);
@@ -231,14 +231,14 @@ The withdrawal function is a custom function that can be implemented in a smart 
 
 ```javascript
 function withdrawal(value) {
-  Utils.assert(Utils.stoI64Check(value) === true, 'Arg-value must be alphanumeric.');
-  Utils.assert(Utils.int64Compare(Chain.msg.coinAmount, "0") === 0, 'Pay coin amount must be 0.');
-  Utils.assert(Utils.int64Compare(value, "0") > 0, 'Arg-value must > 0.');
+  Utils.assert(Utils.stoI256Check(value) === true, 'Arg-value must be alphanumeric.');
+  Utils.assert(Utils.int256Compare(Chain.msg.coinAmount, "0") === 0, 'Pay coin amount must be 0.');
+  Utils.assert(Utils.int256Compare(value, "0") > 0, 'Arg-value must > 0.');
   let senderValue = Chain.load(Chain.msg.sender);
   Utils.assert(senderValue !== false, 'Failed to get the balance of ' + Chain.msg.sender + ' from metadata.');
-  Utils.assert(Utils.int64Compare(senderValue, value) >= 0, 'Balance:' + senderValue + ' of sender:' + Chain.msg.sender + ' < transfer value:' + value + '.');
+  Utils.assert(Utils.int256Compare(senderValue, value) >= 0, 'Balance:' + senderValue + ' of sender:' + Chain.msg.sender + ' < transfer value:' + value + '.');
 
-  senderValue = Utils.int64Sub(senderValue, value);
+  senderValue = Utils.int256Sub(senderValue, value);
   Chain.store(Chain.msg.sender, senderValue);
 
   Chain.tlog('Withdrawal', Chain.msg.sender, value);
