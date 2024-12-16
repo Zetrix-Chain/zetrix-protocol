@@ -337,7 +337,7 @@ function safeTransferFromBalance(fromTokenId, toTokenId, amount) {
     Utils.assert(Utils.int256Compare(senderTokenData.balance, amount) > 0, 'Insufficient balance to transfer amount.');
 
     let recipientTokenKey = getKey(TOKEN_PRE, toTokenId);
-    let recipientTokenData = JSON.parse(Chain.load(recipientTokenKey));
+    let recipientTokenData = Chain.load(recipientTokenKey);
     Utils.assert(recipientTokenData !== false, 'Failed to get storage data, key: ' + recipientTokenKey);
     recipientTokenData = JSON.parse(recipientTokenData);
 
@@ -360,7 +360,7 @@ function transferFromBalance(fromTokenId, toTokenId, amount) {
     Utils.assert(Utils.int256Compare(senderTokenData.balance, amount) > 0, 'Insufficient balance to transfer amount.');
 
     let recipientTokenKey = getKey(TOKEN_PRE, toTokenId);
-    let recipientTokenData = JSON.parse(Chain.load(recipientTokenKey));
+    let recipientTokenData = Chain.load(recipientTokenKey);
     Utils.assert(recipientTokenData !== false, 'Failed to get storage data, key: ' + recipientTokenKey);
     recipientTokenData = JSON.parse(recipientTokenData);
 
