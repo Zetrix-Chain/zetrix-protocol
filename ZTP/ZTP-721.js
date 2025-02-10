@@ -1,339 +1,529 @@
 'use strict';
 
-const ASSET_PRE = 'asset';
-const ASSET_USER_COUNT_PRE = 'asset_user_count';
-const ASSET_OWNER_PRE = 'asset_owner';
-const APPROVE_SINGLE_PRE = 'approve_single';
-const APPROVE_ALL_PRE = 'approve_all';
-const CONTRACT_PRE = 'contract_info';
-const ASSET_SUPPLY = 'asset_supply';
-const ZTP_PROTOCOL = 'ztp721';
+const BasicOperation = function() {
 
-function getKey(first, second, third = '') {
-  return (third === '') ? (first + '_' + second) : (first + '_' + second + '_' + third);
-}
+  this.loadObj = function(key) {
+    let data = Chain.load(key);
+    if (data !== false) {
+      return JSON.parse(data);
+    }
 
-function loadObj(key) {
-  let data = Chain.load(key);
-  Utils.assert(data !== false, 'Failed to get storage data, key:' + key);
-  return JSON.parse(data);
-}
-
-function saveObj(key, value) {
-  Chain.store(key, JSON.stringify(value));
-}
-
-function checkAssetExsit(id) {
-  let data = Chain.load(getKey(ASSET_PRE, id));
-  if (data === false) {
     return false;
-  }
+  };
 
+  this.saveObj = function(key, value) {
+    let str = JSON.stringify(value);
+    Chain.store(key, str);
+  };
+
+  this.delObj = function(key) {
+    Chain.del(key);
+  };
+
+  this.getKey = function(k1, k2, k3 = '', k4 = '') {
+    return (k4 === '') ? (k3 === '') ? (k1 + '_' + k2) : (k1 + '_' + k2 + '_' + k3) : (k1 + '_' + k2 + '_' + k3 + '_' + k4);
+  };
+};
+
+function implementsInterface(obj, interfaceObj) {
+  let keys = Object.keys(interfaceObj);
+  let i;
+  for (i = 0; i < keys.length; i += 1) {
+    if (!obj.hasOwnProperty(keys[i]) ||
+      typeof obj[keys[i]] !== 'function') {
+      return false;
+    }
+  }
   return true;
 }
 
-function saveAsset(id, issuer, uri) {
-  let nftObj = {};
-  nftObj.id = id;
-  nftObj.issuer = issuer;
-  nftObj.uri = uri;
-  saveObj(getKey(ASSET_PRE, id), nftObj);
-}
+const IZEP165 = {
+  supportsInterface: function() {
+    return this;
+  }
+};
 
-function getAssetOwner(id) {
-  let data = Chain.load(getKey(ASSET_OWNER_PRE, id));
-  if (data === false) {
+const IZTP721 = {
+  balanceOf: function() {
+    return this;
+  },
+  ownerOf: function() {
+    return this;
+  },
+  safeTransferFrom: function() {
+    return this;
+  },
+  transferFrom: function() {
+    return this;
+  },
+  approve: function() {
+    return this;
+  },
+  setApprovalForAll: function() {
+    return this;
+  },
+  getApproved: function() {
+    return this;
+  },
+  isApprovedForAll: function() {
+    return this;
+  }
+};
+
+const IZTP721Metadata = {
+  name: function() {
+    return this;
+  },
+  symbol: function() {
+    return this;
+  },
+  tokenURI: function() {
+    return this;
+  }
+};
+
+const IZTP721Enumerable = {
+  totalSupply: function() {
+    return this;
+  },
+  tokenByIndex: function() {
+    return this;
+  },
+  tokenOfOwnerByIndex: function() {
+    return this;
+  }
+};
+
+/**
+ * SPDX-License-Identifier: MIT
+ * Reference : https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol
+ */
+
+const ZTP721 = function() {
+
+  const BasicOperationUtil = new BasicOperation();
+
+  const BALANCES_PRE = 'balances';
+  const OWNERS_PRE = 'owner';
+  const TOKEN_APPROVAL_PRE = 'token_approval';
+  const OPERATOR_APPROVAL_PRE = 'operator_approval';
+  const CONTRACT_INFO = 'contract_info';
+  const ZTP_PROTOCOL = 'ztp721';
+  const EMPTY_ADDRESS = '0x';
+
+  const self = this;
+
+  self.p = {
+    /*protected function*/ };
+
+  self.supportsInterface = function(paramObj) {
+    let interfaceId = paramObj.interfaceId;
+    let iface1 = Utils.sha256(JSON.stringify(IZEP165), 1);
+    let iface2 = Utils.sha256(JSON.stringify(IZTP721), 1);
+    let iface3 = Utils.sha256(JSON.stringify(IZTP721Metadata), 1);
+    return interfaceId === iface1 || interfaceId === iface2 || interfaceId === iface3;
+  };
+
+  /**
+   * @dev Base URI for computing {tokenURI}. If set, the resulting URI for each
+   * token will be the concatenation of the `baseURI` and the `tokenId`. Empty
+   * by default, can be overridden in child contracts.
+   */
+  self.p.baseURI = function() {
     return '';
-  }
+  };
 
-  return JSON.parse(data).owner;
-}
+  /**
+   * @dev Returns the owner of the `tokenId`. Does NOT revert if token doesn't exist
+   *
+   * IMPORTANT: Any overrides to this function that add ownership of tokens not tracked by the
+   * core ERC-721 logic MUST be matched with the use of {_increaseBalance} to keep balances
+   * consistent with ownership. The invariant to preserve is that for any address `a` the value returned by
+   * `balanceOf(a)` must be equal to the number of tokens such that `self.p.ownerOf(tokenId)` is `a`.
+   */
+  self.p.ownerOf = function(tokenId) {
+    let owner = BasicOperationUtil.loadObj(BasicOperationUtil.getKey(OWNERS_PRE, tokenId));
+    if (owner === false) {
+      return EMPTY_ADDRESS;
+    }
+    return owner;
+  };
 
-function saveAssetOwner(id, owner) {
-  let obj = {};
-  obj.owner = owner;
-  saveObj(getKey(ASSET_OWNER_PRE, id), obj);
-}
+  /**
+   * @dev Reverts if the `tokenId` doesn't have a current owner (it hasn't been minted, or it has been burned).
+   * Returns the owner.
+   *
+   * Overrides to ownership logic should be done to {self.p.ownerOf}.
+   */
+  const _requiredOwned = function(tokenId) {
+    let owner = self.p.ownerOf(tokenId);
+    Utils.assert(Utils.addressCheck(owner), 'ERC721: Owner query for nonexistent token');
+    return owner;
+  };
 
-function getAssetUserCount(user) {
-  let data = Chain.load(getKey(ASSET_USER_COUNT_PRE, user));
-  if (data === false) {
-    return '0';
-  }
+  /**
+   * @dev Returns the approved address for `tokenId`. Returns 0 if `tokenId` is not minted.
+   */
+  self.p.getApproved = function(tokenId) {
+    let approvedAddress = BasicOperationUtil.loadObj(BasicOperationUtil.getKey(TOKEN_APPROVAL_PRE, tokenId));
+    if (approvedAddress === false) {
+      return EMPTY_ADDRESS;
+    }
+    return approvedAddress;
+  };
 
-  return JSON.parse(data).count;
-}
+  /**
+   * @dev Returns whether `spender` is allowed to manage `owner`'s tokens, or `tokenId` in
+   * particular (ignoring whether it is owned by `owner`).
+   *
+   * WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not verify this
+   * assumption.
+   */
+  self.p.isAuthorized = function(owner, spender, tokenId) {
+    return spender !== '' && (owner === spender || self.p.getApproved(tokenId) === spender || self.isApprovedForAll(owner, spender));
+  };
 
-function saveAssetUserCount(user, count) {
-  let key = getKey(ASSET_USER_COUNT_PRE, user);
-  if (Utils.int64Compare(count, '0') !== 0) {
-    let obj = {};
-    obj.count = count;
-    saveObj(key, obj);
-    return;
-  }
+  /**
+   * @dev Checks if `spender` can operate on `tokenId`, assuming the provided `owner` is the actual owner.
+   * Reverts if:
+   * - `spender` does not have approval from `owner` for `tokenId`.
+   * - `spender` does not have approval to manage all of `owner`'s assets.
+   *
+   * WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not verify this
+   * assumption.
+   */
+  self.p.checkAuthorized = function(owner, spender, tokenId) {
+    if (!self.p.isAuthorized(owner, spender, tokenId)) {
+      Utils.assert(Utils.addressCheck(owner), 'ERC721: None existent token');
+      Utils.assert(false, 'ERC721: Insufficient approval');
+    }
+  };
 
-  let data = Chain.load(key);
-  if (data !== false) {
-    Chain.del(key);
-  }
-}
+  /**
+   * @dev Variant of `self.p.approve` with an optional flag to enable or disable the {Approval} event. The event is not
+   * emitted in the context of transfers.
+   */
+  self.p.approve = function(to, tokenId, auth, emitEvent = true) {
+    if (emitEvent || Utils.addressCheck(auth)) {
+      let owner = _requiredOwned(tokenId);
 
-function getApproveSingle(id) {
-  let data = Chain.load(getKey(APPROVE_SINGLE_PRE, id));
-  if (data === false) {
-    return '';
-  }
+      if (Utils.addressCheck(auth) && owner !== auth && !self.isApprovedForAll(owner, auth)) {
+        Utils.assert(false, 'ERC721: Invalid approver');
+      }
 
-  return JSON.parse(data).operator;
-}
+      if (emitEvent) {
+        Chain.tlog('Approval', owner, to, tokenId);
+      }
+    }
+    BasicOperationUtil.saveObj(BasicOperationUtil.getKey(TOKEN_APPROVAL_PRE, tokenId), to);
+  };
 
-function saveApproveSingle(id, operator) {
-  let obj = {};
-  obj.operator = operator;
-  saveObj(getKey(APPROVE_SINGLE_PRE, id), obj);
-}
+  /**
+   * @dev Approve `operator` to operate on all of `owner` tokens
+   *
+   * Requirements:
+   * - operator can't be the address zero.
+   *
+   * Emits an {ApprovalForAll} event.
+   */
+  self.p.setApprovalForAll = function(owner, operator, approved) {
+    Utils.assert(Utils.addressCheck(operator), 'ERC721: Invalid operator');
+    BasicOperationUtil.saveObj(BasicOperationUtil.getKey(OPERATOR_APPROVAL_PRE, owner, operator), approved);
+    Chain.tlog('ApprovalForAll', owner, operator, approved);
+  };
 
-function delApproveSingle(id) {
-  let key = getKey(APPROVE_SINGLE_PRE, id);
-  let data = Chain.load(key);
-  if (data === false) {
-    return false;
-  }
-  Chain.del(key);
-  return true;
-}
+  /**
+   * @dev Transfers `tokenId` from its current owner to `to`, or alternatively mints (or burns) if the current owner
+   * (or `to`) is the zero address. Returns the owner of the `tokenId` before the update.
+   *
+   * The `auth` argument is optional. If the value passed is non 0, then this function will check that
+   * `auth` is either the owner of the token, or approved to operate on the token (by the owner).
+   *
+   * Emits a {Transfer} event.
+   *
+   * NOTE: If overriding this function in a way that tracks balances, see also {_increaseBalance}.
+   */
+  self.p.update = function(to, tokenId, auth) {
+    let from = self.p.ownerOf(tokenId);
 
-function getApproveAll(owner, operator) {
-  let data = Chain.load(getKey(APPROVE_ALL_PRE, owner, operator));
-  if (data === false) {
-    return false;
-  }
+    // Perform (optional) operator check
+    if (Utils.addressCheck(auth)) {
+      self.p.checkAuthorized(from, auth, tokenId);
+    }
 
-  return JSON.parse(data).approved;
-}
+    // Execute the update
+    if (Utils.addressCheck(from)) {
+      // Clear approval. No need to re-authorize or emit the Approval event
+      self.p.approve(EMPTY_ADDRESS, tokenId, EMPTY_ADDRESS, false);
 
-function saveApproveAll(owner, operator, approved) {
-  let key = getKey(APPROVE_ALL_PRE, owner, operator);
-  if (approved) {
-    let approvedObj = {};
-    approvedObj.approved = approved;
-    saveObj(key, approvedObj);
-    return;
-  }
+      let balFrom = self.balanceOf({
+        owner: from
+      });
+      if (Utils.int64Compare(balFrom, '0') > 0) {
+        BasicOperationUtil.saveObj(BasicOperationUtil.getKey(BALANCES_PRE, from), Utils.int64Sub(balFrom, '1'));
+      }
+    }
 
-  let data = Chain.load(key);
-  if (data !== false) {
-    Chain.del(key);
-  }
-}
+    if (Utils.addressCheck(to)) {
+      let balTo = self.balanceOf({
+        owner: to
+      });
+      BasicOperationUtil.saveObj(BasicOperationUtil.getKey(BALANCES_PRE, to), Utils.int64Add(balTo, '1'));
+    }
 
-function getAssetSupply() {
-  let data = Chain.load(ASSET_SUPPLY);
-  if (data === false) {
-    return '0';
-  }
+    BasicOperationUtil.saveObj(BasicOperationUtil.getKey(OWNERS_PRE, tokenId), to);
 
-  return JSON.parse(data).count;
-}
+    Chain.tlog('Transfer', from, to, tokenId);
 
-function saveAssetSupply(count) {
-  let supplyObj = {};
-  supplyObj.count = count;
-  saveObj(ASSET_SUPPLY, supplyObj);
-}
+    return from;
+  };
+  /**
+   * @dev Unsafe write access to the balances, used by extensions that 'mint' tokens using an {ownerOf} override.
+   *
+   * NOTE: the value is limited to type(uint128).max. This protect against _balance overflow. It is unrealistic that
+   * a uint256 would ever overflow from increments when these increments are bounded to uint128 values.
+   *
+   * WARNING: Increasing an account's balance using this function tends to be paired with an override of the
+   * {self.p.ownerOf} function to resolve the ownership of the corresponding tokens so that balances and ownership
+   * remain consistent with one another.
+   */
+  self.p.increaseBalance = function(account, value) {
+    let balance = self.balanceOf({
+      owner: account
+    });
+    BasicOperationUtil.saveObj(BasicOperationUtil.getKey(BALANCES_PRE, account), Utils.int64Add(balance, value));
+  };
 
-function _approve(owner, id, approved) {
-  if (approved !== '') {
-    saveApproveSingle(id, approved);
-    Chain.tlog('Approval', owner, approved, id);
-    return;
-  }
+  /**
+   * @dev Mints `tokenId` and transfers it to `to`.
+   *
+   * WARNING: Usage of this method is discouraged, use {_safeMint} whenever possible
+   *
+   * Requirements:
+   *
+   * - `tokenId` must not exist.
+   * - `to` cannot be the zero address.
+   *
+   * Emits a {Transfer} event.
+   */
+  const _mint = function(to, tokenId) {
+    Utils.assert(Utils.addressCheck(to), 'ERC721: Invalid receiver');
+    let previousOwner = self.p.update(to, tokenId, EMPTY_ADDRESS);
+    Utils.assert(previousOwner === EMPTY_ADDRESS, 'ERC721: Invalid sender');
+  };
 
-  if (delApproveSingle(id)) {
-    Chain.tlog('Approval', owner, '0x', id);
-    return;
-  }
-}
+  /**
+   * @dev Mints `tokenId`, transfers it to `to` and checks for `to` acceptance.
+   *
+   * Requirements:
+   *
+   * - `tokenId` must not exist.
+   * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+   *
+   * Emits a {Transfer} event.
+   */
+  self.p.safeMint = function(to, tokenId, data = '') {
+    _mint(to, tokenId);
+    /*
+    if(data !== '') {
+        // Implement checkOnERC721Received
+    }
+     */
+  };
 
-function _transFrom(id, from, to) {
-  Utils.assert(checkAssetExsit(id), 'Check nft not exist.');
+  /**
+   * @dev Destroys `tokenId`.
+   * The approval is cleared when the token is burned.
+   * This is an internal function that does not check if the sender is authorized to operate on the token.
+   *
+   * Requirements:
+   *
+   * - `tokenId` must exist.
+   *
+   * Emits a {Transfer} event.
+   */
+  self.p.burn = function(tokenId) {
+    let previousOwner = self.p.update(EMPTY_ADDRESS, tokenId, EMPTY_ADDRESS);
+    Utils.assert(Utils.addressCheck(previousOwner), 'ERC721: Non existent token');
+  };
 
-  let owner = getAssetOwner(id);
-  Utils.assert(owner === from, 'Nft owner not equal from.');
-  Utils.assert(owner === Chain.msg.sender || getApproveSingle(id) === Chain.msg.sender || getApproveAll(owner, Chain.msg.sender), 'No privilege to trans.');
+  /**
+   * @dev Transfers `tokenId` from `from` to `to`.
+   *  As opposed to {transferFrom}, this imposes no restrictions on msg.sender.
+   *
+   * Requirements:
+   *
+   * - `to` cannot be the zero address.
+   * - `tokenId` token must be owned by `from`.
+   *
+   * Emits a {Transfer} event.
+   */
+  const _transfer = function(from, to, tokenId) {
+    Utils.assert(Utils.addressCheck(to), 'ERC721: Transfer to the zero address');
+    let previousOwner = self.p.update(to, tokenId, EMPTY_ADDRESS);
+    Utils.assert(Utils.addressCheck(previousOwner), 'ERC721: Transfer from nonexistent owner');
+    Utils.assert(previousOwner !== from, 'ERC721: Transfer to the caller');
+  };
 
-  saveAssetUserCount(from, Utils.int64Sub(getAssetUserCount(from), '1'));
-  saveAssetUserCount(to, Utils.int64Add(getAssetUserCount(to), '1'));
+  /**
+   * @dev Safely transfers `tokenId` token from `from` to `to`, checking that contract recipients
+   * are aware of the ERC-721 standard to prevent tokens from being forever locked.
+   *
+   * `data` is additional data, it has no specified format and it is sent in call to `to`.
+   *
+   * This internal function is like {safeTransferFrom} in the sense that it invokes
+   * {IERC721Receiver-onERC721Received} on the receiver, and can be used to e.g.
+   * implement alternative mechanisms to perform token transfer, such as signature-based.
+   *
+   * Requirements:
+   *
+   * - `tokenId` token must exist and be owned by `from`.
+   * - `to` cannot be the zero address.
+   * - `from` cannot be the zero address.
+   * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+   *
+   * Emits a {Transfer} event.
+   */
+  self.p.safeTransfer = function(from, to, tokenId, data = '') {
+    _transfer(from, to, tokenId);
+    /*
+    if(data !== '') {
+        // Implement checkOnERC721Received
+    }
+     */
+  };
 
-  saveAssetOwner(id, to);
+  self.balanceOf = function(paramObj) {
+    Utils.assert(Utils.addressCheck(paramObj.owner), 'ERC721: Invalid owner address: ' + paramObj.owner);
+    let balance = BasicOperationUtil.loadObj(BasicOperationUtil.getKey(BALANCES_PRE, paramObj.owner));
+    if (balance === false) {
+      return '0';
+    }
+    return balance;
+  };
 
-  _approve(owner, id, '');
+  self.ownerOf = function(paramObj) {
+    return _requiredOwned(paramObj.tokenId);
+  };
 
-  Chain.tlog('Transfer', owner, to, id);
+  self.name = function() {
+    let data = BasicOperationUtil.loadObj(CONTRACT_INFO);
+    if (data === false) {
+      return '';
+    }
+    return data.name;
+  };
 
-  return;
-}
+  self.symbol = function() {
+    let data = BasicOperationUtil.loadObj(CONTRACT_INFO);
+    if (data === false) {
+      return '';
+    }
+    return data.symbol;
+  };
 
-function safeTransferFrom(paramObj) {
+  self.tokenURI = function(paramObj) {
+    _requiredOwned(paramObj.tokenId);
+    let _uri = self.p.baseURI();
+    return _uri.length > 0 ? _uri + paramObj.tokenId : '';
+  };
 
-  Utils.assert(paramObj.from !== undefined && paramObj.from.length > 0, 'Param obj has no from.');
-  Utils.assert(paramObj.to !== undefined && paramObj.to.length > 0, 'Param obj has no to.');
-  Utils.assert(paramObj.id !== undefined && paramObj.id.length > 0, 'Param obj has no id.');
-  Utils.assert(Utils.addressCheck(paramObj.from), 'From address is invalid.');
-  Utils.assert(Utils.addressCheck(paramObj.to), 'To address is invalid.');
+  self.approve = function(paramObj) {
+    return self.p.approve(paramObj.to, paramObj.tokenId, Chain.msg.sender);
+  };
 
-  _transFrom(paramObj.id, paramObj.from, paramObj.to);
-  return;
-}
+  self.getApproved = function(paramObj) {
+    _requiredOwned(paramObj.tokenId);
+    return self.p.getApproved(paramObj.tokenId);
+  };
 
-function transferFrom(paramObj) {
+  self.setApprovalForAll = function(paramObj) {
+    return self.p.setApprovalForAll(Chain.msg.sender, paramObj.operator, paramObj.approved);
+  };
 
-  Utils.assert(paramObj.from !== undefined && paramObj.from.length > 0, 'Param obj has no from.');
-  Utils.assert(paramObj.to !== undefined && paramObj.to.length > 0, 'Param obj has no to.');
-  Utils.assert(paramObj.id !== undefined && paramObj.id.length > 0, 'Param obj has no id.');
-  Utils.assert(Utils.addressCheck(paramObj.from), 'From address is invalid.');
-  Utils.assert(Utils.addressCheck(paramObj.to), 'To address is invalid.');
+  self.isApprovedForAll = function(paramObj) {
+    return BasicOperationUtil.loadObj(BasicOperationUtil.getKey(OPERATOR_APPROVAL_PRE, paramObj.owner, paramObj.operator));
+  };
 
-  _transFrom(paramObj.id, paramObj.from, paramObj.to);
-  return;
-}
+  self.transferFrom = function(paramObj) {
+    Utils.assert(Utils.addressCheck(paramObj.to), 'ERC721: Invalid receiver address.');
+    let previousOwner = self.p.update(paramObj.to, paramObj.tokenId, Chain.msg.sender);
+    Utils.assert(previousOwner === paramObj.from, 'ERC721: Incorrect owner');
+  };
 
-function approve(paramObj) {
+  self.safeTransferFrom = function(paramObj) {
+    self.transferFrom(paramObj);
+    /*
+     if(paramObj.data !== '') {
+         // Implement checkOnERC721Received
+     }
+      */
+  };
 
-  Utils.assert(paramObj.approved !== undefined && paramObj.approved.length >= 0, 'Param obj has no approved.');
-  Utils.assert(paramObj.id !== undefined && paramObj.id.length > 0, 'Param obj has no id.');
-  Utils.assert(Utils.addressCheck(paramObj.approved) || paramObj.approved === '', 'Approved address is invalid.');
-  Utils.assert(Chain.msg.sender !== paramObj.approved, 'Approved cannot equal msg sender.');
-  Utils.assert(checkAssetExsit(paramObj.id), 'Check nft not exist.');
-  let owner = getAssetOwner(paramObj.id);
-  Utils.assert(owner === Chain.msg.sender, 'No privilege to trans.');
+  self.contractInfo = function() {
+    return BasicOperationUtil.loadObj(CONTRACT_INFO);
+  };
 
-  _approve(owner, paramObj.id, paramObj.approved);
-  return;
-}
+  self.p.init = function(name, symbol, describe = '', version = '1.0.0') {
+    BasicOperationUtil.saveObj(CONTRACT_INFO, {
+      name: name,
+      symbol: symbol,
+      describe: describe,
+      protocol: ZTP_PROTOCOL,
+      version: version,
+      issuer: Chain.msg.sender
+    });
+  };
+};
 
-function setApprovalForAll(paramObj) {
+const ZTP721Inst = new ZTP721();
+const BasicOperationUtil = new BasicOperation();
 
-  Utils.assert(paramObj.operator !== undefined && paramObj.operator.length > 0, 'Param obj has no operator.');
-  Utils.assert(paramObj.approved !== undefined, 'Param obj has no approved.');
-  Utils.assert(paramObj.approved === true || paramObj.approved === false, 'Approved must be true or false.');
-  Utils.assert(Utils.addressCheck(paramObj.operator), 'Operator address is invalid.');
-  Utils.assert(Chain.msg.sender !== paramObj.operator, 'Operator cannot equal msg sender.');
+const TOKEN_INDEX = 'token_index';
 
-  saveApproveAll(Chain.msg.sender, paramObj.operator, paramObj.approved);
-
-  Chain.tlog('ApprovalForAll', Chain.msg.sender, paramObj.operator, paramObj.approved);
-  return;
-}
+// override
+ZTP721Inst.p.baseURI = function() {
+  return 'https://example.com/';
+};
 
 function mint(paramObj) {
-
-  Utils.assert(paramObj.to !== undefined && paramObj.to.length > 0, 'Param obj has no to.');
-  Utils.assert(paramObj.uri !== undefined && paramObj.uri.length > 0, 'Param obj has no uri.');
-  Utils.assert(Utils.addressCheck(paramObj.to), 'To address is invalid.');
-
-  let newId = Utils.int64Add(getAssetSupply(), '1');
-  let newUserCount = Utils.int64Add(getAssetUserCount(paramObj.to), '1');
-  saveAsset(newId, Chain.msg.sender, paramObj.uri);
-  saveAssetOwner(newId, paramObj.to);
-  saveAssetUserCount(paramObj.to, newUserCount);
-  saveAssetSupply(newId);
-
-  Chain.tlog('Transfer', '0x', paramObj.to, newId);
-  return;
+  let latestIdx = BasicOperationUtil.loadObj(TOKEN_INDEX);
+  if (latestIdx === false) {
+    latestIdx = '0';
+  }
+  latestIdx = Utils.int64Add(latestIdx, '1');
+  ZTP721Inst.p.safeMint(paramObj.to, latestIdx);
+  BasicOperationUtil.saveObj(TOKEN_INDEX, latestIdx);
 }
 
 function burn(paramObj) {
-  Utils.assert(paramObj.id !== undefined && paramObj.id.length > 0, 'Param obj has no id.');
-  Utils.assert(checkAssetExsit(paramObj.id), 'Check nft not exist.');
-
-  let owner = getAssetOwner(paramObj.id);
-  Utils.assert(owner === Chain.msg.sender || getApproveSingle(paramObj.id) === Chain.msg.sender || getApproveAll(owner, Chain.msg.sender), 'No privilege to burn.');
-
-  saveAssetUserCount(owner, Utils.int64Sub(getAssetUserCount(owner), '1'));
-
-  saveAssetOwner(paramObj.id, '');
-
-  _approve(owner, paramObj.id, '');
-
-  Chain.tlog('Transfer', owner, '0x', paramObj.id);
-  return;
+  ZTP721Inst.p.burn(paramObj.tokenId);
 }
 
-function balanceOf(paramObj) {
-
-  Utils.assert(paramObj.owner !== undefined && paramObj.owner.length > 0, 'Param obj has no owner');
-
-  let result = {};
-  result.count = getAssetUserCount(paramObj.owner);
-  return result;
+function safeTransfer(paramObj) {
+  ZTP721Inst.p.safeTransfer(paramObj.from, paramObj.to, paramObj.tokenId);
 }
 
-function ownerOf(paramObj) {
+function init() {
 
-  Utils.assert(paramObj.id !== undefined && paramObj.id.length > 0, 'Param obj has no id.');
+  ZTP721Inst.p.init(
+    'MY NFT',
+    'myNFT',
+    'My NFT Token'
+  );
 
-  let result = {};
-  result.address = getAssetOwner(paramObj.id);
-  return result;
-}
-
-function getApproved(paramObj) {
-
-  Utils.assert(paramObj.id !== undefined && paramObj.id.length > 0, 'Param obj has no id.');
-
-  let result = {};
-  result.address = getApproveSingle(paramObj.id);
-  return result;
-}
-
-function isApprovedForAll(paramObj) {
-
-  Utils.assert(paramObj.owner !== undefined && paramObj.owner.length > 0, 'Param obj has no owner.');
-  Utils.assert(paramObj.operator !== undefined && paramObj.operator.length > 0, 'Param obj has no operator.');
-
-  let result = {};
-  result.approved = getApproveAll(paramObj.owner, paramObj.operator);
-  return result;
-}
-
-function contractInfo() {
-  return loadObj(CONTRACT_PRE);
-}
-
-function tokenURI(paramObj) {
-  Utils.assert(paramObj.id !== undefined && paramObj.id.length > 0, 'Param obj has no id.');
-  let result = {};
-  result.uri = loadObj(getKey(ASSET_PRE, paramObj.id)).uri;
-  return result;
-}
-
-function totalSupply(paramObj) {
-  let result = {};
-  result.count = getAssetSupply();
-  return result;
-}
-
-function init(input_str) {
-  let paramObj = JSON.parse(input_str).params;
-  Utils.assert(paramObj.name !== undefined && paramObj.name.length > 0, 'Param obj has no name.');
-  Utils.assert(paramObj.symbol !== undefined && paramObj.symbol.length > 0, 'Param obj has no symbol.');
-  Utils.assert(paramObj.describe !== undefined && paramObj.describe.length > 0, 'Param obj has no describe.');
-  Utils.assert(paramObj.protocol !== undefined && paramObj.protocol.length > 0 && paramObj.protocol.toLowerCase() === ZTP_PROTOCOL, 'Param obj protocol must be ZTP721.');
-  Utils.assert(paramObj.version !== undefined && paramObj.version.length > 0, 'Param obj has no version.');
-  Utils.assert(paramObj.url !== undefined && paramObj.url.length > 0, 'Param obj has no url.');
-
-  saveObj(CONTRACT_PRE, paramObj);
-  return;
+  Utils.assert(implementsInterface(ZTP721Inst, IZTP721), 'ZTP721 class does not implement IZTP721');
+  Utils.assert(implementsInterface(ZTP721Inst, IZTP721Metadata), 'ZTP721 class does not implement IZTP721Metadata');
+  Utils.assert(implementsInterface(ZTP721Inst, IZEP165), 'ZTP721 class does not implement IZEP165');
+  return true;
 }
 
 function main(input_str) {
   let funcList = {
-    'safeTransferFrom': safeTransferFrom,
-    'transferFrom': transferFrom,
-    'approve': approve,
-    'setApprovalForAll': setApprovalForAll,
+    'safeTransferFrom': ZTP721Inst.safeTransferFrom,
+    'transferFrom': ZTP721Inst.transferFrom,
+    'approve': ZTP721Inst.approve,
+    'setApprovalForAll': ZTP721Inst.setApprovalForAll,
     'mint': mint,
     'burn': burn
   };
@@ -344,15 +534,48 @@ function main(input_str) {
 
 function query(input_str) {
   let funcList = {
-    'balanceOf': balanceOf,
-    'ownerOf': ownerOf,
-    'getApproved': getApproved,
-    'isApprovedForAll': isApprovedForAll,
-    'contractInfo': contractInfo,
-    'tokenURI': tokenURI,
-    'totalSupply': totalSupply
+    'balanceOf': {
+      key: 'balance',
+      func: ZTP721Inst.balanceOf
+    },
+    'ownerOf': {
+      key: 'owner',
+      func: ZTP721Inst.ownerOf
+    },
+    'getApproved': {
+      key: 'approved',
+      func: ZTP721Inst.getApproved
+    },
+    'isApprovedForAll': {
+      key: 'isApprovedForAll',
+      func: ZTP721Inst.isApprovedForAll
+    },
+    'contractInfo': {
+      key: 'contractInfo',
+      func: ZTP721Inst.contractInfo
+    },
+    'tokenURI': {
+      key: 'tokenURI',
+      func: ZTP721Inst.tokenURI
+    },
+    'name': {
+      key: 'name',
+      func: ZTP721Inst.name
+    },
+    'symbol': {
+      key: 'symbol',
+      func: ZTP721Inst.symbol
+    },
+    'supportsInterface': {
+      key: 'supportsInterface',
+      func: ZTP721Inst.supportsInterface
+    }
   };
   let inputObj = JSON.parse(input_str);
-  Utils.assert(funcList.hasOwnProperty(inputObj.method) && typeof funcList[inputObj.method] === 'function', 'Cannot find func:' + inputObj.method);
-  return JSON.stringify(funcList[inputObj.method](inputObj.params));
+  Utils.assert(funcList.hasOwnProperty(inputObj.method) && typeof funcList[inputObj.method].func === 'function', 'Cannot find func: ' + inputObj.method);
+
+  let response = {};
+  response[funcList[inputObj.method].key] = funcList[inputObj.method].func(inputObj.params);
+
+  return JSON.stringify(response);
 }
