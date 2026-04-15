@@ -534,43 +534,17 @@ function main(input_str) {
 
 function query(input_str) {
   let funcList = {
-    'balanceOf': {
-      key: 'balance',
-      func: ZTP721Inst.balanceOf
-    },
-    'ownerOf': {
-      key: 'owner',
-      func: ZTP721Inst.ownerOf
-    },
-    'getApproved': {
-      key: 'approved',
-      func: ZTP721Inst.getApproved
-    },
-    'isApprovedForAll': {
-      key: 'isApprovedForAll',
-      func: ZTP721Inst.isApprovedForAll
-    },
-    'contractInfo': {
-      key: 'contractInfo',
-      func: ZTP721Inst.contractInfo
-    },
-    'tokenURI': {
-      key: 'tokenURI',
-      func: ZTP721Inst.tokenURI
-    },
-    'name': {
-      key: 'name',
-      func: ZTP721Inst.name
-    },
-    'symbol': {
-      key: 'symbol',
-      func: ZTP721Inst.symbol
-    },
-    'supportsInterface': {
-      key: 'supportsInterface',
-      func: ZTP721Inst.supportsInterface
-    }
+    'balanceOf': ZTP721Inst.balanceOf,
+    'ownerOf': ZTP721Inst.ownerOf,
+    'getApproved': ZTP721Inst.getApproved,
+    'isApprovedForAll': ZTP721Inst.isApprovedForAll,
+    'contractInfo': ZTP721Inst.contractInfo,
+    'tokenURI': ZTP721Inst.tokenURI,
+    'name': ZTP721Inst.name,
+    'symbol': ZTP721Inst.symbol,
+    'supportsInterface': ZTP721Inst.supportsInterface
   };
+
   let inputObj = JSON.parse(input_str);
   Utils.assert(funcList.hasOwnProperty(inputObj.method) && typeof funcList[inputObj.method].func === 'function', 'Cannot find func: ' + inputObj.method);
 
