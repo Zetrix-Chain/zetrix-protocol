@@ -382,7 +382,7 @@ function query(input_str) {
     'totalSupply': ZTP20Inst.totalSupply,
     'balanceOf': ZTP20Inst.balanceOf,
     'allowance':  ZTP20Inst.allowance,
-    'contractInfo': func: ZTP20Inst.contractInfo,
+    'contractInfo': ZTP20Inst.contractInfo,
     'name':  ZTP20Inst.name,
     'symbol': ZTP20Inst.symbol,
     'decimals': ZTP20Inst.decimals,
