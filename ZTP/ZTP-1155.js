@@ -419,32 +419,15 @@ function main(input_str) {
 }
 
 function query(input_str) {
-  let funcList = {
-    'balanceOf': {
-      key: 'balance',
-      func: ZTP1155Inst.balanceOf
-    },
-    'uri': {
-      key: 'uri',
-      func: ZTP1155Inst.uri
-    },
-    'balanceOfBatch': {
-      key: 'balances',
-      func: ZTP1155Inst.balanceOfBatch
-    },
-    'isApprovedForAll': {
-      key: 'isApprovedForAll',
-      func: ZTP1155Inst.isApprovedForAll
-    },
-    'contractInfo': {
-      key: 'contractInfo',
-      func: ZTP1155Inst.contractInfo
-    },
-    'supportsInterface': {
-      key: 'supportsInterface',
-      func: ZTP1155Inst.supportsInterface
-    }
+ let funcList = {
+    'balanceOf': ZTP1155Inst.balanceOf,
+    'uri': ZTP1155Inst.uri,
+    'balanceOfBatch': ZTP1155Inst.balanceOfBatch,
+    'isApprovedForAll': ZTP1155Inst.isApprovedForAll,
+    'contractInfo': ZTP1155Inst.contractInfo,
+    'supportsInterface': ZTP1155Inst.supportsInterface
   };
+  
   let inputObj = JSON.parse(input_str);
   Utils.assert(funcList.hasOwnProperty(inputObj.method) && typeof funcList[inputObj.method].func === 'function', 'Cannot find func: ' + inputObj.method);
 
