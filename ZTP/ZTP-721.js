@@ -534,15 +534,15 @@ function main(input_str) {
 
 function query(input_str) {
   let funcList = {
-    'balanceOf': ZTP721Inst.balanceOf,
-    'ownerOf': ZTP721Inst.ownerOf,
-    'getApproved': ZTP721Inst.getApproved,
-    'isApprovedForAll': ZTP721Inst.isApprovedForAll,
-    'contractInfo': ZTP721Inst.contractInfo,
-    'tokenURI': ZTP721Inst.tokenURI,
-    'name': ZTP721Inst.name,
-    'symbol': ZTP721Inst.symbol,
-    'supportsInterface': ZTP721Inst.supportsInterface
+    'balanceOf': { key: 'balanceOf', func:ZTP20Inst.balanceOf },
+    'ownerOf': { key: 'ownerOf', func:ZTP721Inst.ownerOf },
+    'getApproved': { key: 'getApproved', func:ZTP721Inst.getApproved },
+    'isApprovedForAll': { key: 'isApprovedForAll', func:ZTP721Inst.isApprovedForAll },
+    'contractInfo': { key: 'contractInfo', func:ZTP20Inst.contractInfo },
+    'tokenURI': { key: 'tokenURI', func:ZTP721Inst.tokenURI },
+    'name':  { key: 'name', func:ZTP20Inst.name },
+    'symbol': { key: 'symbol', func:ZTP20Inst.symbol },
+    'supportsInterface': { key: 'supportInterface', func:ZTP20Inst.supportsInterface }
   };
 
   let inputObj = JSON.parse(input_str);
