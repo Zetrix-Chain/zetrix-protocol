@@ -379,14 +379,14 @@ function main(input_str) {
 
 function query(input_str) {  
   let funcList = {
-    'totalSupply': ZTP20Inst.totalSupply,
-    'balanceOf': ZTP20Inst.balanceOf,
-    'allowance':  ZTP20Inst.allowance,
-    'contractInfo': ZTP20Inst.contractInfo,
-    'name':  ZTP20Inst.name,
-    'symbol': ZTP20Inst.symbol,
-    'decimals': ZTP20Inst.decimals,
-    'supportsInterface': ZTP20Inst.supportsInterface
+    'totalSupply': { key: 'totalSupply', func: ZTP20Inst.totalSupply },
+    'balanceOf': { key: 'balanceOf', func:ZTP20Inst.balanceOf },
+    'allowance':  { key: 'allowance', func:ZTP20Inst.allowance },
+    'contractInfo': { key: 'contractInfo', func:ZTP20Inst.contractInfo },
+    'name':  { key: 'name', func:ZTP20Inst.name },
+    'symbol': { key: 'symbol', func:ZTP20Inst.symbol },
+    'decimals': { key: 'decimals', func:ZTP20Inst.decimals },
+    'supportsInterface': { key: 'supportInterface', func:ZTP20Inst.supportsInterface }
   };
   let inputObj = JSON.parse(input_str);
   Utils.assert(funcList.hasOwnProperty(inputObj.method) && typeof funcList[inputObj.method].func === 'function','Cannot find func: ' + inputObj.method);
