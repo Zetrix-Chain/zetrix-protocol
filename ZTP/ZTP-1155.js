@@ -420,7 +420,7 @@ function main(input_str) {
 
 function query(input_str) {
  let funcList = {
-    'balanceOf': { key: 'balanceOf',  func:ZTP1155Inst.balanceOf },
+    'balanceOf': { key: 'balance',  func:ZTP1155Inst.balanceOf },
     'uri':  { key: 'uri',  func:ZTP1155Inst.uri },
     'balanceOfBatch':  { key: 'balanceOfBatch',  func:ZTP1155Inst.balanceOfBatch },
     'isApprovedForAll':  { key: 'isApprovedForAll',  func:ZTP1155Inst.isApprovedForAll },
