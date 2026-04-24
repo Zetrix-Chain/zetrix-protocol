@@ -380,7 +380,7 @@ function main(input_str) {
 function query(input_str) {  
   let funcList = {
     'totalSupply': { key: 'totalSupply', func: ZTP20Inst.totalSupply },
-    'balanceOf': { key: 'balanceOf', func:ZTP20Inst.balanceOf },
+    'balanceOf': { key: 'balance', func:ZTP20Inst.balanceOf },
     'allowance':  { key: 'allowance', func:ZTP20Inst.allowance },
     'contractInfo': { key: 'contractInfo', func:ZTP20Inst.contractInfo },
     'name':  { key: 'name', func:ZTP20Inst.name },
