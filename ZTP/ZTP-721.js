@@ -534,8 +534,8 @@ function main(input_str) {
 
 function query(input_str) {
   let funcList = {
-    'balanceOf': { key: 'balanceOf', func:ZTP721Inst.balanceOf },
-    'ownerOf': { key: 'ownerOf', func:ZTP721Inst.ownerOf },
+    'balanceOf': { key: 'balance', func:ZTP721Inst.balanceOf },
+    'ownerOf': { key: 'owner', func:ZTP721Inst.ownerOf },
     'getApproved': { key: 'getApproved', func:ZTP721Inst.getApproved },
     'isApprovedForAll': { key: 'isApprovedForAll', func:ZTP721Inst.isApprovedForAll },
     'contractInfo': { key: 'contractInfo', func:ZTP721Inst.contractInfo },
